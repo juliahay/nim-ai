@@ -101,8 +101,8 @@ class NimAI():
         Return the Q-value for the state `state` and the action `action`.
         If no Q-value exists yet in `self.q`, return 0.
         """
-        if (state, action) in self.q:
-            return self.q[(state, action)]
+        if (tuple(state), action) in self.q:
+            return self.q[(tuple(state), action)]
         else:
             return 0
 
@@ -123,7 +123,7 @@ class NimAI():
         """
         q_value = old_q + self.alpha * (reward + future_rewards - old_q)
 
-        self.q[(state, action)] = q_value
+        self.q[(tuple(state), action)] = q_value
 
     def best_future_reward(self, state):
         """
@@ -135,15 +135,17 @@ class NimAI():
         Q-value in `self.q`. If there are no available actions in
         `state`, return 0.
         """
-        actions = NIm.available_actions(state)
-        best_reward = 0
+        actions = Nim.available_actions(state)
+        best_reward = -math.inf
+        if not actions:
+            return 0
         q_value = 0
 
         for action in actions:
-            if (state, action) not in self.q:
+            if (tuple(state), action) not in self.q:
                 q_value = 0
             else:
-                q_value = self.q[(state, action)]
+                q_value = self.q[(tuple(state), action)]
             
             if q_value > best_reward:
                 best_reward = q_value
@@ -169,15 +171,13 @@ class NimAI():
         if epsilon == True:
             e = self.epsilon
             if random.random() < e:
-                return random.choice(Nim.available_actions(state))
+                return random.choice(list(Nim.available_actions(state)))
             else:
-                actions = Nim.available_actions(state)
-                for action in actions:
+                for action in Nim.available_actions(state):
                     if self.get_q_value(state, action) == best_reward:
                         return action
         else:
-            actions = Nim.available_actions(state)
-            for action in actions:
+            for action in Nim.available_actions(state):
                 if self.get_q_value(state, action) == best_reward:
                     return action
 
